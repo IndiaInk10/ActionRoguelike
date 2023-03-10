@@ -21,11 +21,11 @@ AKExplosiveBarrel::AKExplosiveBarrel()
 	// // 읽어오기를 성공했다고 가정했을때 타입캐스팅(?)을 하여 사용
 	// UStaticMesh* BarrelAsset = MeshAsset.Object;
 	// 2. 또 다른 방법으로 LoadObject을 통해 경로에서 불러올 수 있다
-	UStaticMesh* BarrelAsset = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/ExampleContent/Meshes/SM_RedBarrel.SM_RedBarrel"));
+	UStaticMesh* BarrelAsset = LoadObject<UStaticMesh>(nullptr, TEXT("StaticMesh'/Game/ExampleContent/Meshes/SM_RedBarrel.SM_RedBarrel'"));
 	MeshComp->SetStaticMesh(BarrelAsset);
 
-	UMaterialInterface* BarrelMaterialAsset = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/MapTemplates/Materials/BasicAsset01.BasicAsset01"));
-	MeshComp->SetMaterial(0, BarrelMaterialAsset);
+	UMaterialInterface* BarrelMaterialAsset = LoadObject<UMaterialInterface>(nullptr, TEXT("Material'/Engine/MapTemplates/Materials/BasicAsset01.BasicAsset01'"));
+	MeshComp->SetMaterial(0, BarrelMaterialAsset->GetMaterial());
 
 	// Editor와 다르게 SimulatePhysics를 해도 자동으로 CollisionProfile이 PhysicsActor로 변하지 않음
 	MeshComp->SetSimulatePhysics(true);

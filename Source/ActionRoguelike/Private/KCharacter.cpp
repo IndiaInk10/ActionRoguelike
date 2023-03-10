@@ -2,6 +2,8 @@
 
 
 #include "KCharacter.h"
+
+#include "VectorTypes.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -23,13 +25,15 @@ AKCharacter::AKCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	
 	bUseControllerRotationYaw = false;
+
+	// 메터리얼의 파라미터를 변경하기 위한 스켈레탈 메쉬에 대한 접근
+	MyMesh = GetMesh();
 }
 
 // Called when the game starts or when spawned
 void AKCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 
@@ -39,6 +43,18 @@ void AKCharacter::BeginPlay()
 void AKCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	// 거리 계산 후 거리에 따른 처리
+	MyLocation = GetActorLocation();
+	CameraLocation = CameraComp->GetComponentLocation();
+	float distance = FVector::Distance(MyLocation, CameraLocation);
+	if(distance <= 100.f)
+	{
+		distance /= 100.f;
+		// 메터리얼의 파라미터값을 변경해주는 부분
+		MyMesh->SetScalarParameterValueOnMaterials("FadeOut", distance);
+	}
 
 	// -- Rotation Visualization -- //
 	const float DrawScale = 100.0f;

@@ -30,6 +30,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
+	FVector MyLocation;
+	FVector CameraLocation;
+	USkeletalMeshComponent* MyMesh;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
