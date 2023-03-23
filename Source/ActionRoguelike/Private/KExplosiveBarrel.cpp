@@ -68,5 +68,6 @@ void AKExplosiveBarrel::OnHited(UPrimitiveComponent* HitComponent, AActor* Other
 	// if(HitActor != AKMagicProjectile::StaticClass())  return;
 
 	// OtherActor->Destroy();
+	// ForceComp->FireImpulse();
 	Cast<URadialForceComponent>(HitComponent->GetChildComponent(0))->FireImpulse();
 }

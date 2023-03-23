@@ -3,7 +3,7 @@
 
 #include "KCharacter.h"
 
-#include "VectorTypes.h"
+#include "KInteractionComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -21,6 +21,8 @@ AKCharacter::AKCharacter()
 	
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	InteractionComp = CreateDefaultSubobject<UKInteractionComponent>("InteractionComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	
@@ -86,6 +88,8 @@ void AKCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AKCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &AKCharacter::PrimaryInteract);
+	
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AKCharacter::Jump);
 }
 
@@ -115,6 +119,13 @@ void AKCharacter::MoveRight(float value)
 
 void AKCharacter::PrimaryAttack()
 {
+	PlayAnimMontage(AttackAnim);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AKCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+	// GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
+}
+void AKCharacter::PrimaryAttack_TimeElapsed()
+{
 	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
 	// FTransform SpawnTM = FTransform(GetControlRotation(), GetActorLocation());
 	FTransform SpawnTM = FTransform(GetControlRotation(), HandLocation);
@@ -123,5 +134,13 @@ void AKCharacter::PrimaryAttack()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	
 	GetWorld()->SpawnActor(ProjectileClass, &SpawnTM, SpawnParams);
+}
+
+void AKCharacter::PrimaryInteract()
+{
+	if(InteractionComp)
+	{
+		InteractionComp->PrimaryInteract();
+	}
 }
 
