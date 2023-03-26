@@ -41,9 +41,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UKInteractionComponent* InteractionComp;
 
-	FVector MyLocation;
-	FVector CameraLocation;
+	// for BlockingMeshFade
+	TArray<AActor*> PreviousHitActors;
 	USkeletalMeshComponent* MyMesh;
+
+	void CheckBlockingMesh();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

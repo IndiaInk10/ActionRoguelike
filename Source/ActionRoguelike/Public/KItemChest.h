@@ -18,7 +18,6 @@ public:
 	float TargetPitch;
 	
 	void Interact_Implementation(APawn* InstigatorPawn) override;
-
 protected:
 
 	UPROPERTY(VisibleAnywhere)

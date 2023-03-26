@@ -1,13 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "DrawDebugHelpers.h"
 #include "KCharacter.h"
 
 #include "KInteractionComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "KFadeActor.h"
+#include "KGameplayInterface.h"
 
 // Sets default values
 AKCharacter::AKCharacter()
@@ -39,24 +40,12 @@ void AKCharacter::BeginPlay()
 }
 
 
-// This include is added at the top of your KCharacter.cpp file
-#include "DrawDebugHelpers.h"
 // This is entirely optional, it draws two arrows to visualize rotations of the player
 void AKCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-	// 거리 계산 후 거리에 따른 처리
-	MyLocation = GetActorLocation();
-	CameraLocation = CameraComp->GetComponentLocation();
-	float distance = FVector::Distance(MyLocation, CameraLocation);
-	if(distance <= 100.f)
-	{
-		distance /= 100.f;
-		// 메터리얼의 파라미터값을 변경해주는 부분
-		MyMesh->SetScalarParameterValueOnMaterials("FadeOut", distance);
-	}
+	CheckBlockingMesh();
 
 	// -- Rotation Visualization -- //
 	const float DrawScale = 100.0f;
@@ -73,6 +62,71 @@ void AKCharacter::Tick(float DeltaTime)
 	FVector ControllerDirection_LineEnd = LineStart + (GetControlRotation().Vector() * 100.0f);
 	// Draw 'Controller' Rotation ('PlayerController' that 'possessed' this character)
 	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControllerDirection_LineEnd, DrawScale, FColor::Green, false, 0.0f, 0, Thickness);
+}
+
+void AKCharacter::CheckBlockingMesh()
+{
+	// FadeCharacter
+	// 거리 계산 후 거리에 따른 처리
+	// 
+	//FVector MyLocation = GetActorLocation();
+	//FVector CameraLocation = CameraComp->GetComponentLocation();
+	//float distance = FVector::Distance(MyLocation, CameraLocation);
+	//if (distance <= 100.f)
+	//{
+	//	distance /= 100.f;
+	//	// 메터리얼의 파라미터값을 변경해주는 부분
+	//	MyMesh->SetScalarParameterValueOnMaterials("FadeOut", distance);
+	//}
+
+	// FadeOtherActor(Mesh)
+	FCollisionObjectQueryParams ObjectQueryParams;
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+
+	FVector Start = GetActorLocation();
+	FVector CameraLocation = CameraComp->GetComponentLocation(); 
+
+	// FHitResult Hit;
+	// bool bBlockingHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyeLocation, End, ObjectQueryParams);
+
+	TArray<FHitResult> Hits;
+	TArray<AActor*> HitActors;
+
+	FCollisionShape Shape;
+	float Radius = 30.0f;
+	Shape.SetSphere(Radius);
+
+	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, Start, CameraLocation, FQuat::Identity, ObjectQueryParams, Shape);
+	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
+
+	// 이전 Blocking Mesh 처리
+	for (FHitResult Hit : Hits)
+	{
+		AActor* HitActor = Hit.GetActor();
+		// 포인터에 ! 연산자 불가능
+		if (HitActor)
+		{
+			HitActors.Add(HitActor);
+			if (PreviousHitActors.Find(HitActor) == INDEX_NONE)
+			{
+				PreviousHitActors.Add(HitActor);
+				AKFadeActor* FadeActor = Cast<AKFadeActor>(Hit.GetActor());
+				if (FadeActor)  FadeActor->StartFade();
+			}
+			// DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 0.1f);
+		}
+	}
+	for (AActor* Actor : PreviousHitActors)
+	{
+		if (HitActors.Find(Actor) == INDEX_NONE)
+		{
+			PreviousHitActors.Remove(Actor);
+			AKFadeActor* FadeActor = Cast<AKFadeActor>(Actor);
+			if (FadeActor)  FadeActor->EndFade();
+		}
+	}
+
+	// DrawDebugLine(GetWorld(), Start, CameraLocation, FColor::Green, false, 2.0f, 0, 0.1f);
 }
 
 
