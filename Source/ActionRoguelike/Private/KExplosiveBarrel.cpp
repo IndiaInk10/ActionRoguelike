@@ -6,7 +6,7 @@
 #include "KMagicProjectile.h"
 #include "Components/StaticMeshComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
-
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 AKExplosiveBarrel::AKExplosiveBarrel()
@@ -70,4 +70,10 @@ void AKExplosiveBarrel::OnHited(UPrimitiveComponent* HitComponent, AActor* Other
 	// OtherActor->Destroy();
 	// ForceComp->FireImpulse();
 	Cast<URadialForceComponent>(HitComponent->GetChildComponent(0))->FireImpulse();
+
+	UE_LOG(LogTemp, Log, TEXT("OnHited in Eplosive Barrel"));
+	UE_LOG(LogTemp, Warning, TEXT("OtherActor : %s, at Game Time : %f"), *GetNameSafe(OtherActor), GetWorld()->TimeSeconds);
+	
+	FString CombinedString = FString::Printf(TEXT("Hit at location : %s"), *Hit.ImpactPoint.ToString());
+	DrawDebugString(GetWorld(), Hit.ImpactPoint, CombinedString, nullptr, FColor::Green, 2.0f, true);
 }

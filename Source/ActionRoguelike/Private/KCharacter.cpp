@@ -45,7 +45,7 @@ void AKCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CheckBlockingMesh();
+	//CheckBlockingMesh();
 
 	// -- Rotation Visualization -- //
 	const float DrawScale = 100.0f;
@@ -186,6 +186,7 @@ void AKCharacter::PrimaryAttack_TimeElapsed()
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this; // Pass our character
 	
 	GetWorld()->SpawnActor(ProjectileClass, &SpawnTM, SpawnParams);
 }
